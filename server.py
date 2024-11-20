@@ -48,7 +48,7 @@ def handle(client_socket, client_address):
                 print(f"{username} has joined the chatroom with address {client_address}")
 
         # Defining the LIST command
-        if (data == "LIST" and (client_socket in active_clients) and data[5:] != " "):
+        if (data == "LIST" and (client_socket in active_clients) and data[5] != " "):
             # Send the client who requested the active users a list of active users
             list = "The active users include: " # Can only send one response per command str to be sent
             for clients in range(len(active_clients)):

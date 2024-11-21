@@ -48,7 +48,7 @@ def handle(client_socket, client_address):
                 print(f"{username} has joined the chatroom with address {client_address}")
 
         # Defining the LIST command
-        if (data == "LIST" and (client_socket in active_clients) and data[5:] == None):
+        elif (data == "LIST" and (client_socket in active_clients)):
             # Send the client who requested the active users a list of active users
             list = "The active users include: " # Can only send one response per command str to be sent
             for clients in range(len(active_clients)):
@@ -59,7 +59,7 @@ def handle(client_socket, client_address):
             print(f"{usernames[index]} requested a list of active users.")
 
         # Defining the BCST command
-        if (data.startswith("BCST ") and (client_socket in active_clients)):
+        elif (data.startswith("BCST ") and (client_socket in active_clients)):
             index = active_clients.index(client_socket)
             username = str(usernames[index])
             broadcast = username + ": " + str(data[5:])
@@ -72,7 +72,7 @@ def handle(client_socket, client_address):
             print(f"{usernames[index]} broadcasted a message.")
 
         # Defining the MESG command
-        if (data.startswith("MESG ") and (client_socket in active_clients)):
+        elif (data.startswith("MESG ") and (client_socket in active_clients)):
             contents = data[5:]
             # Seperate the username from the message
             contents_list = contents.split()
@@ -99,35 +99,37 @@ def handle(client_socket, client_address):
                 print(f"{usernames[index]} tried to send a private message to an unactive user.")
 
         # Catch any users trying to use chatroom commands when not an active user
-        if (data.startswith("LIST") and (client_socket not in active_clients)):
+        elif (data.startswith("LIST") and (client_socket not in active_clients)):
             # Tell client how to join chatroom
             client_socket.send((f"To use LIST you must be an active user. Use JOIN <username> to become active and if there's space you will be added.").encode('ascii'))
             # Display status on server
             print(f"{client_socket} attempted to use a command that required them to be an active chatter.")
-        if (data.startswith("BCST") and (client_socket not in active_clients)):
+        elif (data.startswith("BCST") and (client_socket not in active_clients)):
             # Tell client how to join chatroom
             client_socket.send((f"To use BCST you must be an active user. Use JOIN <username> to become active and if there's space you will be added.").encode('ascii'))
             # Display status on server
             print(f"{client_socket} attempted to use a command that required them to be an active chatter.")
-        if (data.startswith("MESG") and (client_socket not in active_clients)):
+        elif (data.startswith("MESG") and (client_socket not in active_clients)):
             # Tell client how to join chatroom
             client_socket.send((f"To use MESG you must be an active user. Use JOIN <username> to become active and if there's space you will be added.").encode('ascii'))
             # Display status on server
             print(f"{client_socket} attempted to use a command that required them to be an active chatter.")
 
         # Defining the QUIT command
-        if (data.startswith("QUIT")):
+        elif (data.startswith("QUIT")):
             # Decrement active users
             active_count -= 1
             # Remove active user's data from chatroom
             index = active_clients.index(client_socket)
-            active_clients.remove(index)
-            usernames.remove(index)
+            user_to_remove = active_clients[index]
+            username_to_remove = usernames[index]
+            active_clients.remove(user_to_remove)
+            usernames.remove(username_to_remove)
 
             # Send status to client
             client_socket.send(("Disconnecting").encode('ascii'))
             # Display status on server
-            print(f"{client_socket} has disconnected from the chatroom. There are now {active_count} active users.")
+            print(f"{client_address} has disconnected from the chatroom. There are now {active_count} active users.")
             break
 
         else:
